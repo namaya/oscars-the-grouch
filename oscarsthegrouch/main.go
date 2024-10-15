@@ -1,7 +1,7 @@
 package main
 
-import "fmt"
+import "namaya/oscarsthegrouch/cmd"
 
 func main() {
-	fmt.Println("Hello, world!")
+	cmd.Execute()
 }
