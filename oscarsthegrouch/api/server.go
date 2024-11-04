@@ -6,16 +6,17 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type Endpoint interface {
+	BuildRoutes(r *mux.Router) error
+}
+
 func ServerHandler() {
 	r := mux.NewRouter()
 	s := r.PathPrefix("/api").Subrouter()
 
-	s.HandleFunc("/ballots", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
+	ballotsEndpoint := NewBallotsEndpoint()
 
-		w.Write([]byte(`{"message": "Hello, World!"}`))
-	}).Methods("POST")
+	ballotsEndpoint.BuildRoutes(s)
 
 	http.Handle("/", r)
 
