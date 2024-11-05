@@ -1,6 +1,8 @@
 package api
 
 import (
+	"namaya/oscarsthegrouch/database"
+	"namaya/oscarsthegrouch/service"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -11,10 +13,20 @@ type Endpoint interface {
 }
 
 func ServerHandler() {
+	// Build infrastructure
+	err := database.RunMigrations()
+	if err != nil {
+		panic(err)
+	}
+
+	// Build services
+	ballotsService := service.NewBallotsService()
+
+	// Build router
 	r := mux.NewRouter()
 	s := r.PathPrefix("/api").Subrouter()
 
-	ballotsEndpoint := NewBallotsEndpoint()
+	ballotsEndpoint := NewBallotsEndpoint(ballotsService)
 
 	ballotsEndpoint.BuildRoutes(s)
 

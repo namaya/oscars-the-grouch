@@ -1,16 +1,20 @@
 package api
 
 import (
+	"namaya/oscarsthegrouch/service"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
 type ballotEndpoint struct {
+	ballotsService service.BallotsService
 }
 
-func NewBallotsEndpoint() Endpoint {
-	return &ballotEndpoint{}
+func NewBallotsEndpoint(bService service.BallotsService) Endpoint {
+	return &ballotEndpoint{
+		ballotsService: bService,
+	}
 }
 
 func (b *ballotEndpoint) BuildRoutes(r *mux.Router) error {
