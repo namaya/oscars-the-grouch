@@ -1,19 +1,30 @@
 package database
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
+	"log/slog"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func RunMigrations() error {
-	conn, err := sql.Open("sqlite3", "./oscarsthegrouch.db")
+func ConnectDb(ctx context.Context) (*sql.DB, error) {
+	dbClient, err := sql.Open("sqlite3", "./oscarsthegrouch.db")
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer conn.Close()
 
+	err = RunMigrations(ctx, dbClient)
+	if err != nil {
+		return nil, err
+	}
+
+	return dbClient, nil
+}
+
+func RunMigrations(ctx context.Context, dbClient *sql.DB) error {
 	migrationsFolderName := "./data/migrations"
 
 	entries, err := os.ReadDir(migrationsFolderName)
@@ -21,21 +32,33 @@ func RunMigrations() error {
 		return err
 	}
 
-	migrationsStart, err := getMigrationStart(conn)
+	migrationsStart, err := getMigrationStart(dbClient)
 	if err != nil {
 		return err
 	}
 
 	for i, migrationFile := range entries[migrationsStart:] {
-		conn.Exec("BEGIN TRANSACTION")
-		migration, err := os.ReadFile(migrationsFolderName + "/" + migrationFile.Name())
+		migrationQuery, err := os.ReadFile(migrationsFolderName + "/" + migrationFile.Name())
 		if err != nil {
 			return err
 		}
-		conn.Exec(string(migration))
-		conn.Exec("COMMIT")
 
-		conn.Exec("UPDATE schema_migrations SET version = ?;", migrationsStart+i+1)
+		result, err := dbClient.ExecContext(ctx, fmt.Sprintf(`
+            BEGIN TRANSACTION;
+            %s
+            UPDATE schema_migrations SET version = ?;
+        `, migrationQuery), migrationsStart+i+1)
+
+		if err != nil {
+			return err
+		}
+
+		rowsUpdated, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+
+		slog.InfoContext(ctx, "Migration %s applied successfully. %s records updated.", migrationFile.Name(), rowsUpdated)
 	}
 
 	return nil

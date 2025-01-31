@@ -1,9 +1,12 @@
 package api
 
 import (
+	"context"
+	"log"
+	"net/http"
+
 	"namaya/oscarsthegrouch/database"
 	"namaya/oscarsthegrouch/service"
-	"net/http"
 
 	"github.com/gorilla/mux"
 )
@@ -14,13 +17,15 @@ type Endpoint interface {
 
 func ServerHandler() {
 	// Build infrastructure
-	err := database.RunMigrations()
+	ctx := context.Background()
+
+	dbClient, err := database.ConnectDb(ctx)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error connecting to database: %v", err)
 	}
 
 	// Build services
-	ballotsService := service.NewBallotsService()
+	ballotsService := service.NewBallotsService(dbClient)
 
 	// Build router
 	r := mux.NewRouter()

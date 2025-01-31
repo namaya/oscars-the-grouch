@@ -1,6 +1,8 @@
 package api
 
 import (
+	"encoding/json"
+	"namaya/oscarsthegrouch/model"
 	"namaya/oscarsthegrouch/service"
 	"net/http"
 
@@ -25,7 +27,22 @@ func (b *ballotEndpoint) BuildRoutes(r *mux.Router) error {
 }
 
 func (b *ballotEndpoint) postBallot(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(`{"message": "Hello, World 1!"}`))
+	ctx := r.Context()
+
+	var ballot model.Ballot
+
+	if err := json.NewDecoder(r.Body).Decode(&ballot); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := b.ballotsService.SaveBallot(ctx, &ballot); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte(`{"message": "Ballot added successfully!"}`))
 }
 
 func (b *ballotEndpoint) getBallots(w http.ResponseWriter, r *http.Request) {
