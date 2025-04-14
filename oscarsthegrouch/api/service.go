@@ -49,6 +49,8 @@ func BuildRouter(endpoints ...Endpoint) (*mux.Router, error) {
 	r := mux.NewRouter()
 	s := r.PathPrefix("/api").Subrouter()
 
+	s.Use(LoggingMiddleware)
+
 	for _, e := range endpoints {
 		if err := e.BuildRoutes(s); err != nil {
 			return nil, err
@@ -56,4 +58,11 @@ func BuildRouter(endpoints ...Endpoint) (*mux.Router, error) {
 	}
 
 	return r, nil
+}
+
+func LoggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s %s", r.Method, r.URL.Path)
+		next.ServeHTTP(w, r)
+	})
 }
