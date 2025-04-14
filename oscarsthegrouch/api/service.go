@@ -26,16 +26,34 @@ func ServerHandler() {
 
 	// Build services
 	ballotsService := service.NewBallotsService(dbClient)
+	usersService := service.NewUsersService(dbClient)
 
-	// Build router
-	r := mux.NewRouter()
-	s := r.PathPrefix("/api").Subrouter()
-
+	// Build endpoints
+	gamesEndpoint := NewGamesEndpoint()
 	ballotsEndpoint := NewBallotsEndpoint(ballotsService)
+	usersEndpoint := NewUsersEndpoint(usersService)
 
-	ballotsEndpoint.BuildRoutes(s)
+	r, err := BuildRouter(gamesEndpoint, usersEndpoint, ballotsEndpoint)
+	if err != nil {
+		log.Fatalf("Error building router: %v", err)
+	}
 
 	http.Handle("/", r)
 
+	// Start server
+	log.Println("Starting server on :8080")
 	http.ListenAndServe(":8080", nil)
+}
+
+func BuildRouter(endpoints ...Endpoint) (*mux.Router, error) {
+	r := mux.NewRouter()
+	s := r.PathPrefix("/api").Subrouter()
+
+	for _, e := range endpoints {
+		if err := e.BuildRoutes(s); err != nil {
+			return nil, err
+		}
+	}
+
+	return r, nil
 }
