@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"namaya/oscarsthegrouch/model"
 	"namaya/oscarsthegrouch/service"
 	"net/http"
 
@@ -20,40 +19,43 @@ func NewUsersEndpoint(us service.UsersService) Endpoint {
 }
 
 func (ue *usersEndpoint) BuildRoutes(r *mux.Router) error {
-	r.HandleFunc("/users", ue.postUser).Methods("POST")
+	r.HandleFunc("/users", ue.createUser).Methods("POST")
 
 	return nil
 }
 
-// postUser handles HTTP requests to create a new user.
-func (ue *usersEndpoint) postUser(w http.ResponseWriter, r *http.Request) {
+// createUser handles HTTP requests to create a new user.
+func (ue *usersEndpoint) createUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	var user model.User
+	var reqBody CreateUserRequest
 
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := ue.usersService.SaveUser(ctx, &user); err != nil {
+	user, err := ue.usersService.CreateUser(ctx, reqBody.Name)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	response := PostUserResponse{
-		Message: "New user created.",
-		User:    user,
+	resBody := CreateUserResponse{
+		UserId: user.Id,
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	if err := json.NewEncoder(w).Encode(response); err != nil {
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(resBody); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
 
-type PostUserResponse struct {
-	Message string     `json:"message"`
-	User    model.User `json:"user"`
+type CreateUserRequest struct {
+	Name string `json:"name"`
+}
+
+type CreateUserResponse struct {
+	UserId string `json:"userId"`
 }

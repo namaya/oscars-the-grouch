@@ -1,0 +1,44 @@
+
+CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CREATE TABLE IF NOT EXISTS games (
+--     id TEXT PRIMARY KEY,
+--     name TEXT NOT NULL,
+--     state TEXT NOT NULL,
+--     owner_id TEXT NOT NULL,
+--     correct_ballot_id INTEGER,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY (owner_id) REFERENCES users(id),
+--     FOREIGN KEY (correct_ballot_id) REFERENCES ballots(id)
+-- );
+--
+-- CREATE TABLE IF NOT EXISTS players (
+--     id TEXT PRIMARY KEY,
+--     user_id TEXT NOT NULL,
+--     game_id TEXT NOT NULL,
+--     score INTEGER DEFAULT 0,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY (user_id) REFERENCES users(id),
+--     FOREIGN KEY (game_id) REFERENCES games(id)
+-- );
+--
+-- CREATE TABLE IF NOT EXISTS ballots (
+--     id TEXT PRIMARY KEY,
+--     player_id TEXT NOT NULL,
+--     year TEXT NOT NULL,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY (player_id) REFERENCES players(id)
+-- );
+--
+-- CREATE TABLE IF NOT EXISTS votes (
+--     id TEXT PRIMARY KEY,
+--     ballot_id TEXT NOT NULL,
+--     category TEXT NOT NULL,
+--     vote TEXT NOT NULL,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY (ballot_id) REFERENCES ballots(id),
+-- );
