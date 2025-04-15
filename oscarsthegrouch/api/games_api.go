@@ -18,7 +18,7 @@ func NewGamesEndpoint() Endpoint {
 
 func (b *gamesEndpoint) BuildRoutes(r *mux.Router) error {
 	r.HandleFunc("/games", b.createGame).Methods("POST")
-	r.HandleFunc("/games", b.getBallots).Methods("GET")
+	r.HandleFunc("/games", b.listGames).Methods("GET")
 
 	return nil
 }
@@ -62,6 +62,46 @@ func (b *gamesEndpoint) createGame(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (b *gamesEndpoint) getBallots(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(`{"message": "Hello, World 2!"}`))
+type ListGamesResponse struct {
+	Games []GameResponse `json:"games"`
+}
+
+type GameResponse struct {
+	Id    string `json:"id"`
+	Name  string `json:"name"`
+	State string `json:"state"`
+}
+
+func (b *gamesEndpoint) listGames(w http.ResponseWriter, r *http.Request) {
+	userId := r.Header.Get("Authorization")
+	if userId == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	resBody := ListGamesResponse{
+		Games: []GameResponse{
+			{
+				Id:    "1",
+				Name:  "Game 1",
+				State: "active",
+			},
+			{
+				Id:    "1",
+				Name:  "Game 1",
+				State: "active",
+			},
+			{
+				Id:    "1",
+				Name:  "Game 1",
+				State: "active",
+			},
+		},
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(resBody); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
