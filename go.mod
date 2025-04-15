@@ -3,19 +3,21 @@ module namaya
 go 1.23.1
 
 require (
+	github.com/golang-migrate/migrate/v4 v4.18.2
+	github.com/google/uuid v1.6.0
+	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/mux v1.8.1
+	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/spf13/cobra v1.8.1
 )
 
 require (
-	github.com/golang-migrate/migrate/v4 v4.18.2 // indirect
-	github.com/google/uuid v1.6.0 // indirect
+	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
-	github.com/mattn/go-sqlite3 v1.14.24 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	go.uber.org/atomic v1.7.0 // indirect

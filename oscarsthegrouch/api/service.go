@@ -4,10 +4,12 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 
 	"namaya/oscarsthegrouch/database"
 	"namaya/oscarsthegrouch/service"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -28,7 +30,7 @@ func ServerHandler() {
 	ballotsService := service.NewBallotsService(dbClient)
 	usersService := service.NewUsersService(dbClient)
 
-	// Build endpoints
+	// Build API endpoints
 	gamesEndpoint := NewGamesEndpoint()
 	ballotsEndpoint := NewBallotsEndpoint(ballotsService)
 	usersEndpoint := NewUsersEndpoint(usersService)
@@ -38,18 +40,18 @@ func ServerHandler() {
 		log.Fatalf("Error building router: %v", err)
 	}
 
-	http.Handle("/", r)
 
 	// Start server
 	log.Println("Starting server on :8080")
-	http.ListenAndServe(":8080", nil)
+
+	logr := handlers.LoggingHandler(os.Stdout, r)
+
+	http.ListenAndServe(":8080", logr)
 }
 
 func BuildRouter(endpoints ...Endpoint) (*mux.Router, error) {
 	r := mux.NewRouter()
 	s := r.PathPrefix("/api").Subrouter()
-
-	s.Use(LoggingMiddleware)
 
 	for _, e := range endpoints {
 		if err := e.BuildRoutes(s); err != nil {
@@ -64,5 +66,6 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%s %s", r.Method, r.URL.Path)
 		next.ServeHTTP(w, r)
+		log.Printf("%s")
 	})
 }

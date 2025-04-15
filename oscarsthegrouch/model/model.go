@@ -15,8 +15,8 @@ type Game struct {
 	Id      string
 	Name    string
 	State   string
-	OwnerId User
-	Players []Player
+	OwnerId string
+	// Players []Player
 }
 
 type Ballot struct {
