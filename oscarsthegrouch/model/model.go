@@ -1,9 +1,9 @@
 package model
 
 type User struct {
-	Id   string
-	Name string
-	// Avatar string
+	Id        string
+	Name      string
+	AvatarUri string
 }
 
 type Player struct {

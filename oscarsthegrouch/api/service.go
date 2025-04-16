@@ -40,6 +40,9 @@ func ServerHandler() {
 		log.Fatalf("Error building router: %v", err)
 	}
 
+	// Build static file server
+	fs := http.FileServer(http.Dir("./static"))
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
 
 	// Start server
 	log.Println("Starting server on :8080")

@@ -6,12 +6,15 @@ import (
 	"fmt"
 	"log"
 	"namaya/oscarsthegrouch/model"
+	"os"
+	"path/filepath"
 
 	"github.com/google/uuid"
 )
 
 type UsersService interface {
-	CreateUser(ctx context.Context, username string) (*model.User, error)
+	CreateUser(ctx context.Context, username string, avatar string) (*model.User, error)
+	ListAvatars(ctx context.Context) ([]string, error)
 }
 
 type usersService struct {
@@ -24,10 +27,10 @@ func NewUsersService(dbClient *sql.DB) UsersService {
 	}
 }
 
-func (us *usersService) CreateUser(ctx context.Context, username string) (*model.User, error) {
+func (us *usersService) CreateUser(ctx context.Context, username string, avatarUri string) (*model.User, error) {
 	userId := uuid.New().String()
 
-	result, err := us.dbClient.Exec("INSERT INTO users (id, name) VALUES (?, ?)", userId, username)
+	result, err := us.dbClient.Exec("INSERT INTO users (id, name, avatar_uri) VALUES (?, ?, ?)", userId, username, avatarUri)
 	if err != nil {
 		return nil, fmt.Errorf("CreateUser: %w", err)
 	}
@@ -42,11 +45,34 @@ func (us *usersService) CreateUser(ctx context.Context, username string) (*model
 	}
 
 	user := model.User{
-		Id:   userId,
-		Name: username,
+		Id:        userId,
+		Name:      username,
+		AvatarUri: avatarUri,
 	}
 
 	log.Printf("User created with ID: %s", user.Id)
 
 	return &user, nil
+}
+
+func (us *usersService) ListAvatars(ctx context.Context) ([]string, error) {
+	files := []string{}
+
+	err := filepath.Walk("./static/avatars", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return fmt.Errorf("Walk: %w", err)
+		}
+
+		if !info.IsDir() {
+			path := "/static/avatars/" + info.Name()
+			files = append(files, path)
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("ListAvatars: %w", err)
+	}
+
+	return files, nil
 }

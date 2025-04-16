@@ -20,8 +20,18 @@ func NewUsersEndpoint(us service.UsersService) Endpoint {
 
 func (ue *usersEndpoint) BuildRoutes(r *mux.Router) error {
 	r.HandleFunc("/users", ue.createUser).Methods("POST")
+	r.HandleFunc("/users/avatars", ue.listAvatars).Methods("GET")
 
 	return nil
+}
+
+type CreateUserRequest struct {
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
+}
+
+type CreateUserResponse struct {
+	UserId string `json:"userId"`
 }
 
 // createUser handles HTTP requests to create a new user.
@@ -35,7 +45,7 @@ func (ue *usersEndpoint) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := ue.usersService.CreateUser(ctx, reqBody.Name)
+	user, err := ue.usersService.CreateUser(ctx, reqBody.Name, reqBody.Avatar)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -52,10 +62,26 @@ func (ue *usersEndpoint) createUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type CreateUserRequest struct {
-	Name string `json:"name"`
+type ListAvatarsResponse struct {
+	Avatars []string `json:"avatars"`
 }
 
-type CreateUserResponse struct {
-	UserId string `json:"userId"`
+func (ue *usersEndpoint) listAvatars(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	avatars, err := ue.usersService.ListAvatars(ctx)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resBody := ListAvatarsResponse{
+		Avatars: avatars,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(resBody); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
