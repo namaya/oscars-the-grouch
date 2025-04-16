@@ -14,6 +14,7 @@ import (
 
 type UsersService interface {
 	CreateUser(ctx context.Context, username string, avatar string) (*model.User, error)
+	GetUser(ctx context.Context, userId string) (*model.User, error)
 	ListAvatars(ctx context.Context) ([]string, error)
 }
 
@@ -75,4 +76,20 @@ func (us *usersService) ListAvatars(ctx context.Context) ([]string, error) {
 	}
 
 	return files, nil
+}
+
+func (us *usersService) GetUser(ctx context.Context, userId string) (*model.User, error) {
+	row := us.dbClient.QueryRow("SELECT id, name, avatar_uri FROM users WHERE id = ?", userId)
+
+	user := &model.User{}
+
+	err := row.Scan(&user.Id, &user.Name, &user.AvatarUri)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrNotFound
+		}
+		return nil, fmt.Errorf("GetUser: %w", err)
+	}
+
+	return user, nil
 }

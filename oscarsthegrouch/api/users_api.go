@@ -21,6 +21,7 @@ func NewUsersEndpoint(us service.UsersService) Endpoint {
 func (ue *usersEndpoint) BuildRoutes(r *mux.Router) error {
 	r.HandleFunc("/users", ue.createUser).Methods("POST")
 	r.HandleFunc("/users/avatars", ue.listAvatars).Methods("GET")
+	r.HandleFunc("/users/{id}", ue.getUser).Methods("GET")
 
 	return nil
 }
@@ -77,6 +78,45 @@ func (ue *usersEndpoint) listAvatars(w http.ResponseWriter, r *http.Request) {
 
 	resBody := ListAvatarsResponse{
 		Avatars: avatars,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(resBody); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+type GetUserResponse struct {
+	UserId    string `json:"userId"`
+	Name      string `json:"name"`
+	AvatarUri string `json:"avatarUri"`
+}
+
+func (ue *usersEndpoint) getUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		http.Error(w, "User ID is required", http.StatusBadRequest)
+		return
+	}
+
+	user, err := ue.usersService.GetUser(ctx, id)
+	if err != nil {
+		if err == service.ErrNotFound {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resBody := GetUserResponse{
+		UserId:    user.Id,
+		Name:      user.Name,
+		AvatarUri: user.AvatarUri,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
