@@ -10,18 +10,20 @@ import (
 )
 
 type gamesEndpoint struct {
+	AuthorizedEndpoint
 	gamesService service.GamesService
 }
 
-func NewGamesEndpoint(gs service.GamesService) Endpoint {
+func NewGamesEndpoint(ae AuthorizedEndpoint, gs service.GamesService) Endpoint {
 	return &gamesEndpoint{
-		gamesService: gs,
+		AuthorizedEndpoint: ae,
+		gamesService:       gs,
 	}
 }
 
-func (b *gamesEndpoint) BuildRoutes(r *mux.Router) error {
-	r.HandleFunc("/games", b.createGame).Methods("POST")
-	r.HandleFunc("/games", b.listGames).Methods("GET")
+func (e *gamesEndpoint) BuildRoutes(r *mux.Router) error {
+	r.Handle("/games", e.RequireRightFunc(e.createGame)).Methods("POST")
+	r.Handle("/games", e.RequireRightFunc(e.listGames)).Methods("GET")
 
 	return nil
 }
@@ -76,28 +78,25 @@ type GameResponse struct {
 }
 
 func (ge *gamesEndpoint) listGames(w http.ResponseWriter, r *http.Request) {
-	// TODO: check that user exists
-	userId := r.Header.Get("Authorization")
-	if userId == "" {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
 	ctx := r.Context()
 
-	games, err := ge.gamesService.ListGames(ctx, userId)
+	games, err := ge.gamesService.ListGames(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	resBody := make([]GameResponse, len(games))
+	gamesResp := make([]GameResponse, len(games))
 	for i, game := range games {
-		resBody[i] = GameResponse{
+		gamesResp[i] = GameResponse{
 			Id:    game.Id,
 			Name:  game.Name,
 			State: game.State,
 		}
+	}
+
+	resBody := ListGamesResponse{
+		Games: gamesResp,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

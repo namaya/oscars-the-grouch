@@ -32,7 +32,9 @@ func ServerHandler() {
 	ballotsService := service.NewBallotsService(dbClient)
 
 	// Build API endpoints
-	gamesEndpoint := NewGamesEndpoint(gamesService)
+	ae := NewAuthorizedEndpoint(usersService)
+
+	gamesEndpoint := NewGamesEndpoint(ae, gamesService)
 	ballotsEndpoint := NewBallotsEndpoint(ballotsService)
 	usersEndpoint := NewUsersEndpoint(usersService)
 
@@ -71,5 +73,41 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 		log.Printf("%s %s", r.Method, r.URL.Path)
 		next.ServeHTTP(w, r)
 		log.Printf("%s")
+	})
+}
+
+type AuthorizedEndpoint interface {
+	RequireRightFunc(next http.HandlerFunc, rights ...string) http.Handler
+}
+
+type authorizedEndpoint struct {
+	usersService service.UsersService
+}
+
+func NewAuthorizedEndpoint(us service.UsersService) AuthorizedEndpoint {
+	return &authorizedEndpoint{
+		usersService: us,
+	}
+}
+
+func (ae *authorizedEndpoint) RequireRightFunc(next http.HandlerFunc, rights ...string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userId := r.Header.Get("Authorization")
+		if userId == "" {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		ctx := r.Context()
+
+		_, err := ae.usersService.GetUser(ctx, userId)
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		r = r.WithContext(context.WithValue(ctx, "userId", userId))
+
+		next.ServeHTTP(w, r)
 	})
 }

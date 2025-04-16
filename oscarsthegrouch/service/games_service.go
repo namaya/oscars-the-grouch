@@ -8,7 +8,7 @@ import (
 )
 
 type GamesService interface {
-	ListGames(ctx context.Context, userId string) ([]*model.Game, error)
+	ListGames(ctx context.Context) ([]*model.Game, error)
 	// CreateGame(ctx context.Context, username string, avatar string) (*model.User, error)
 }
 
@@ -22,7 +22,9 @@ func NewGameService(dbClient *sql.DB) GamesService {
 	}
 }
 
-func (gs *gamesService) ListGames(ctx context.Context, userId string) ([]*model.Game, error) {
+func (gs *gamesService) ListGames(ctx context.Context) ([]*model.Game, error) {
+	userId := ctx.Value("userId").(string)
+
 	rows, err := gs.dbClient.QueryContext(ctx, "SELECT id, name, state FROM games WHERE owner_id = ?", userId)
 	if err != nil {
 		return nil, fmt.Errorf("ListGames: %w", err)
