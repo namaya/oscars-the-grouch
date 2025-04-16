@@ -5,11 +5,13 @@ import (
 	"database/sql"
 	"fmt"
 	"namaya/oscarsthegrouch/model"
+
+	"github.com/google/uuid"
 )
 
 type GamesService interface {
 	ListGames(ctx context.Context) ([]*model.Game, error)
-	// CreateGame(ctx context.Context, username string, avatar string) (*model.User, error)
+	CreateGame(ctx context.Context, name string) (*model.Game, error)
 }
 
 type gamesService struct {
@@ -41,4 +43,32 @@ func (gs *gamesService) ListGames(ctx context.Context) ([]*model.Game, error) {
 	}
 
 	return games, nil
+}
+
+func (gs *gamesService) CreateGame(ctx context.Context, name string) (*model.Game, error) {
+	userId := ctx.Value("userId").(string)
+	gameId := uuid.New().String()
+	state := "Created"
+
+	result, err := gs.dbClient.ExecContext(ctx, "INSERT INTO games (id, name, state, owner_id) VALUES (?, ?, ?, ?)", gameId, name, state, userId)
+	if err != nil {
+		return nil, fmt.Errorf("CreateGame: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return nil, fmt.Errorf("CreateGame: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return nil, fmt.Errorf("CreateGame: no rows affected")
+	}
+
+	game := &model.Game{
+		Id:    gameId,
+		Name:  name,
+		State: state,
+	}
+
+	return game, nil
 }

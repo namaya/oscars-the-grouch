@@ -29,8 +29,7 @@ func (e *gamesEndpoint) BuildRoutes(r *mux.Router) error {
 }
 
 type CreateGameRequest struct {
-	Name  string `json:"name"`
-	State string `json:"state"`
+	Name string `json:"name"`
 }
 
 type CreateGameResponse struct {
@@ -40,13 +39,7 @@ type CreateGameResponse struct {
 }
 
 func (b *gamesEndpoint) createGame(w http.ResponseWriter, r *http.Request) {
-	// ctx := r.Context()
-
-	userId := r.Header.Get("Authorization")
-	if userId == "" {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+	ctx := r.Context()
 
 	var createGameRequest CreateGameRequest
 
@@ -55,13 +48,20 @@ func (b *gamesEndpoint) createGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := CreateGameResponse{
-		Name:  createGameRequest.Name,
-		State: createGameRequest.State,
+	game, err := b.gamesService.CreateGame(ctx, createGameRequest.Name)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resBody := CreateGameResponse{
+		Id:    game.Id,
+		Name:  game.Name,
+		State: game.State,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(response); err != nil {
+	if err := json.NewEncoder(w).Encode(resBody); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
