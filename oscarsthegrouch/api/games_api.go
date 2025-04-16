@@ -3,17 +3,20 @@ package api
 import (
 	"encoding/json"
 	// "namaya/oscarsthegrouch/model"
-	// "namaya/oscarsthegrouch/service"
+	"namaya/oscarsthegrouch/service"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
 type gamesEndpoint struct {
+	gamesService service.GamesService
 }
 
-func NewGamesEndpoint() Endpoint {
-	return &gamesEndpoint{}
+func NewGamesEndpoint(gs service.GamesService) Endpoint {
+	return &gamesEndpoint{
+		gamesService: gs,
+	}
 }
 
 func (b *gamesEndpoint) BuildRoutes(r *mux.Router) error {
@@ -72,31 +75,29 @@ type GameResponse struct {
 	State string `json:"state"`
 }
 
-func (b *gamesEndpoint) listGames(w http.ResponseWriter, r *http.Request) {
+func (ge *gamesEndpoint) listGames(w http.ResponseWriter, r *http.Request) {
+	// TODO: check that user exists
 	userId := r.Header.Get("Authorization")
 	if userId == "" {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	resBody := ListGamesResponse{
-		Games: []GameResponse{
-			{
-				Id:    "1",
-				Name:  "Game 1",
-				State: "active",
-			},
-			{
-				Id:    "1",
-				Name:  "Game 1",
-				State: "active",
-			},
-			{
-				Id:    "1",
-				Name:  "Game 1",
-				State: "active",
-			},
-		},
+	ctx := r.Context()
+
+	games, err := ge.gamesService.ListGames(ctx, userId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resBody := make([]GameResponse, len(games))
+	for i, game := range games {
+		resBody[i] = GameResponse{
+			Id:    game.Id,
+			Name:  game.Name,
+			State: game.State,
+		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")

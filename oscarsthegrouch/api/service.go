@@ -27,11 +27,12 @@ func ServerHandler() {
 	}
 
 	// Build services
-	ballotsService := service.NewBallotsService(dbClient)
 	usersService := service.NewUsersService(dbClient)
+	gamesService := service.NewGameService(dbClient)
+	ballotsService := service.NewBallotsService(dbClient)
 
 	// Build API endpoints
-	gamesEndpoint := NewGamesEndpoint()
+	gamesEndpoint := NewGamesEndpoint(gamesService)
 	ballotsEndpoint := NewBallotsEndpoint(ballotsService)
 	usersEndpoint := NewUsersEndpoint(usersService)
 

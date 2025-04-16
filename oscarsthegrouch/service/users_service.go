@@ -79,7 +79,7 @@ func (us *usersService) ListAvatars(ctx context.Context) ([]string, error) {
 }
 
 func (us *usersService) GetUser(ctx context.Context, userId string) (*model.User, error) {
-	row := us.dbClient.QueryRow("SELECT id, name, avatar_uri FROM users WHERE id = ?", userId)
+	row := us.dbClient.QueryRowContext(ctx, "SELECT id, name, avatar_uri FROM users WHERE id = ?", userId)
 
 	user := &model.User{}
 

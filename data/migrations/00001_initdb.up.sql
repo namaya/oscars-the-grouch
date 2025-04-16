@@ -6,17 +6,18 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- CREATE TABLE IF NOT EXISTS games (
---     id TEXT PRIMARY KEY,
---     name TEXT NOT NULL,
---     state TEXT NOT NULL,
---     owner_id TEXT NOT NULL,
---     correct_ballot_id INTEGER,
---     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---     FOREIGN KEY (owner_id) REFERENCES users(id),
---     FOREIGN KEY (correct_ballot_id) REFERENCES ballots(id)
--- );
---
+CREATE TABLE IF NOT EXISTS games (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    state TEXT NOT NULL,
+    owner_id TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (owner_id) REFERENCES users(id)
+);
+
+-- correct_ballot_id INTEGER,
+-- FOREIGN KEY (correct_ballot_id) REFERENCES ballots(id)
+
 -- CREATE TABLE IF NOT EXISTS players (
 --     id TEXT PRIMARY KEY,
 --     user_id TEXT NOT NULL,
