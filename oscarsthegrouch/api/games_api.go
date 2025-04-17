@@ -24,6 +24,7 @@ func NewGamesEndpoint(ae AuthorizedEndpoint, gs service.GamesService) Endpoint {
 func (e *gamesEndpoint) BuildRoutes(r *mux.Router) error {
 	r.Handle("/games", e.RequireRightFunc(e.createGame)).Methods("POST")
 	r.Handle("/games", e.RequireRightFunc(e.listGames)).Methods("GET")
+	r.Handle("/games/{id}/players", e.RequireRightFunc(e.listPlayers)).Methods("GET")
 
 	return nil
 }
@@ -97,6 +98,56 @@ func (ge *gamesEndpoint) listGames(w http.ResponseWriter, r *http.Request) {
 
 	resBody := ListGamesResponse{
 		Games: gamesResp,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(resBody); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+type ListPlayersResponse struct {
+	Players []PlayerResponse `json:"players"`
+}
+
+type PlayerResponse struct {
+	Id        string `json:"id"`
+	Username  string `json:"username"`
+	AvatarUri string `json:"avatarUri"`
+	Score     int    `json:"score"`
+	State     string `json:"state"`
+}
+
+func (ge *gamesEndpoint) listPlayers(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		http.Error(w, "Game ID is required", http.StatusBadRequest)
+		return
+	}
+
+	players, err := ge.gamesService.ListPlayers(ctx, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	playersResp := make([]PlayerResponse, len(players))
+	for i, player := range players {
+		playersResp[i] = PlayerResponse{
+			Id:        player.Id,
+			Username:  player.User.Name,
+			AvatarUri: player.User.AvatarUri,
+			Score:     player.Score,
+			State:     player.State,
+		}
+	}
+
+	resBody := ListPlayersResponse{
+		Players: playersResp,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

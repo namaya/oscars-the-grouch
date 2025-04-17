@@ -7,8 +7,10 @@ type User struct {
 }
 
 type Player struct {
-	Id   string
-	Name string
+	Id    string
+	User  *User
+	Score int
+	State string
 }
 
 type Game struct {

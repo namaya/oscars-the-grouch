@@ -27,8 +27,8 @@ func (ue *usersEndpoint) BuildRoutes(r *mux.Router) error {
 }
 
 type CreateUserRequest struct {
-	Name   string `json:"name"`
-	Avatar string `json:"avatar"`
+	Name      string `json:"name"`
+	AvatarUri string `json:"avatarUri"`
 }
 
 type CreateUserResponse struct {
@@ -46,7 +46,7 @@ func (ue *usersEndpoint) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := ue.usersService.CreateUser(ctx, reqBody.Name, reqBody.Avatar)
+	user, err := ue.usersService.CreateUser(ctx, reqBody.Name, reqBody.AvatarUri)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
