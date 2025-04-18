@@ -3,9 +3,11 @@ package service
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"namaya/oscarsthegrouch/log"
 	"namaya/oscarsthegrouch/model"
+	"os"
 
 	"github.com/google/uuid"
 )
@@ -14,6 +16,7 @@ type GamesService interface {
 	ListGames(ctx context.Context) ([]*model.Game, error)
 	CreateGame(ctx context.Context, name string) (*model.Game, error)
 	ListPlayers(ctx context.Context, gameId string) ([]*model.Player, error)
+	GetNominations(ctx context.Context, gameId string) (*Nominations, error)
 }
 
 type gamesService struct {
@@ -145,4 +148,36 @@ func (gs *gamesService) ListPlayers(ctx context.Context, gameId string) ([]*mode
 	}
 
 	return players, nil
+}
+
+type Nominations struct {
+	Categories []NominationCategory `json:"categories"`
+}
+
+type NominationCategory struct {
+	Nominees []Nominee `json:"nominees"`
+}
+
+type Nominee struct {
+	Work         string `json:"work"`
+	Contributors string `json:"contributors"`
+}
+
+func (gs *gamesService) GetNominations(ctx context.Context, gameId string) (*Nominations, error) {
+	logger := log.Get(ctx)
+
+	n, err := os.ReadFile("./static/nominations/y2025.json")
+	if err != nil {
+		return nil, fmt.Errorf("GetNominations: %w", err)
+	}
+
+	var nominations Nominations
+	err = json.Unmarshal(n, &nominations)
+	if err != nil {
+		return nil, fmt.Errorf("GetNominations: %w", err)
+	}
+
+	logger.Debugf("GetNominations: %v", nominations)
+
+	return &nominations, nil
 }
