@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 
+	"namaya/oscarsthegrouch/model"
+
 	"github.com/golang-migrate/migrate/v4"
 
 	"github.com/golang-migrate/migrate/v4/database/sqlite"
@@ -33,4 +35,9 @@ func ConnectDb(ctx context.Context) (*sql.DB, error) {
 	}
 
 	return dbClient, nil
+}
+
+// TODO: each game needs a separate master ballot
+func GetMasterBallot(ctx context.Context) (*model.Ballot, error) {
+	return nil, nil
 }

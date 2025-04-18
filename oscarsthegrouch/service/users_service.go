@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
+	"namaya/oscarsthegrouch/log"
 	"namaya/oscarsthegrouch/model"
 	"os"
 	"path/filepath"
@@ -45,13 +45,13 @@ func (us *usersService) CreateUser(ctx context.Context, username string, avatarU
 		return nil, fmt.Errorf("CreateUser: no rows affected")
 	}
 
+	log.Get(ctx).Debugf("Created user: %v", userId)
+
 	user := model.User{
 		Id:        userId,
 		Name:      username,
 		AvatarUri: avatarUri,
 	}
-
-	log.Printf("User created with ID: %s", user.Id)
 
 	return &user, nil
 }
@@ -79,6 +79,8 @@ func (us *usersService) ListAvatars(ctx context.Context) ([]string, error) {
 }
 
 func (us *usersService) GetUser(ctx context.Context, userId string) (*model.User, error) {
+	logger := log.Get(ctx)
+
 	row := us.dbClient.QueryRowContext(ctx, "SELECT id, name, avatar_uri FROM users WHERE id = ?", userId)
 
 	user := &model.User{}
@@ -90,6 +92,8 @@ func (us *usersService) GetUser(ctx context.Context, userId string) (*model.User
 		}
 		return nil, fmt.Errorf("GetUser: %w", err)
 	}
+
+	logger.Debugf("GetUser: %v", user)
 
 	return user, nil
 }

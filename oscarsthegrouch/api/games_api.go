@@ -21,10 +21,14 @@ func NewGamesEndpoint(ae AuthorizedEndpoint, gs service.GamesService) Endpoint {
 	}
 }
 
+// TODO: auth rights
 func (e *gamesEndpoint) BuildRoutes(r *mux.Router) error {
 	r.Handle("/games", e.RequireRightFunc(e.createGame)).Methods("POST")
 	r.Handle("/games", e.RequireRightFunc(e.listGames)).Methods("GET")
 	r.Handle("/games/{id}/players", e.RequireRightFunc(e.listPlayers)).Methods("GET")
+	r.Handle("/games/{id}/scores", e.RequireRightFunc(e.scores)).Methods("GET")
+	r.Handle("/games/{id}/ballots", e.RequireRightFunc(e.createBallot)).Methods("POST")
+	r.Handle("/games/{id}/masterballot", e.RequireRightFunc(e.voteBallot)).Methods("PUT")
 
 	return nil
 }
@@ -155,4 +159,18 @@ func (ge *gamesEndpoint) listPlayers(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func (ge *gamesEndpoint) scores(w http.ResponseWriter, r *http.Request) {
+	// TODO: return the scores of all the players.
+	// Requires that the game is active
+}
+
+func (ge *gamesEndpoint) createBallot(w http.ResponseWriter, r *http.Request) {
+	// TODO: update player state to "Ready"
+
+}
+
+func (ge *gamesEndpoint) voteBallot(w http.ResponseWriter, r *http.Request) {
+	// Requires that the game is active
 }

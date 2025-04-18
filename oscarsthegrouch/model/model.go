@@ -18,20 +18,29 @@ type Game struct {
 	Name    string
 	State   string
 	OwnerId string
-	// Players []Player
 }
 
 type Ballot struct {
-	Categories []Category
-	Owner      Player
+	Id      string
+	Year    int
+	OwnerId string
+	Votes   []Vote
+}
+
+type Vote struct {
+	BallotId   string
+	CategoryId string
+	Vote       int
 }
 
 type Category struct {
+	Id       string
+	Name     string
 	Nominees []Nominee
-	winnerId string
 }
 
 type Nominee struct {
-	id   string
-	name string
+	Id           string
+	Work         string
+	Contributors string
 }

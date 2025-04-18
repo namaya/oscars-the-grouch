@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"namaya/oscarsthegrouch/log"
 	"namaya/oscarsthegrouch/model"
 
 	"github.com/google/uuid"
@@ -47,11 +48,16 @@ func (gs *gamesService) ListGames(ctx context.Context) ([]*model.Game, error) {
 }
 
 func (gs *gamesService) CreateGame(ctx context.Context, name string) (*model.Game, error) {
+	logger := log.Get(ctx)
+
 	userId := ctx.Value("userId").(string)
 	gameId := uuid.New().String()
 	state := "Created"
 
-	result, err := gs.dbClient.ExecContext(ctx, "INSERT INTO games (id, name, state, owner_id) VALUES (?, ?, ?, ?)", gameId, name, state, userId)
+	// Create game
+	result, err := gs.dbClient.ExecContext(ctx, `
+		INSERT INTO games (id, name, state, owner_id) VALUES (?, ?, ?, ?)
+	`, gameId, name, state, userId)
 	if err != nil {
 		return nil, fmt.Errorf("CreateGame: %w", err)
 	}
@@ -65,9 +71,14 @@ func (gs *gamesService) CreateGame(ctx context.Context, name string) (*model.Gam
 		return nil, fmt.Errorf("CreateGame: games: no rows affected")
 	}
 
+	logger.Debugf("created game '%s'", gameId)
+
+	// Add player to game
+	playerId := uuid.New().String()
+
 	result, err = gs.dbClient.ExecContext(ctx, `
 		INSERT INTO players (id, game_id, user_id, score, state) VALUES (?, ?, ?, ?, ?)
-	`, uuid.New().String(), gameId, userId, 0, "Waiting")
+	`, playerId, gameId, userId, 0, "Waiting")
 
 	if err != nil {
 		return nil, fmt.Errorf("CreateGame: %w", err)
@@ -76,6 +87,30 @@ func (gs *gamesService) CreateGame(ctx context.Context, name string) (*model.Gam
 	if rowsAffected == 0 {
 		return nil, fmt.Errorf("CreateGame: players: no rows affected")
 	}
+
+	logger.Debugf("created player '%s'", playerId)
+
+	// Add master ballot to game
+	ballotId := uuid.New().String()
+	result, err = gs.dbClient.ExecContext(ctx, `
+		INSERT INTO ballots (id, game_id, year) VALUES (?, ?, ?)
+	`, ballotId, gameId, "2025")
+	if err != nil {
+		return nil, fmt.Errorf("CreateGame: %w", err)
+	}
+
+	rowsAffected, err = result.RowsAffected()
+	if err != nil {
+		return nil, fmt.Errorf("CreateGame: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return nil, fmt.Errorf("CreateGame: ballots: no rows affected")
+	}
+
+	logger.Debugf("created ballot '%s'", ballotId)
+
+	// NOTE: organizer will add votes to the master ballot during the game
 
 	game := &model.Game{
 		Id:    gameId,
