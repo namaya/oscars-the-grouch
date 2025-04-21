@@ -26,10 +26,11 @@ func (e *gamesEndpoint) BuildRoutes(r *mux.Router) error {
 	r.Handle("/games", e.RequireRightFunc(e.createGame)).Methods("POST")
 	r.Handle("/games", e.RequireRightFunc(e.listGames)).Methods("GET")
 	r.Handle("/games/{id}/players", e.RequireRightFunc(e.listPlayers)).Methods("GET")
-	r.Handle("/games/{id}/nominations", e.RequireRightFunc(e.getNominations)).Methods("GET")
 	r.Handle("/games/{id}/scores", e.RequireRightFunc(e.scores)).Methods("GET")
 	r.Handle("/games/{id}/ballots", e.RequireRightFunc(e.createBallot)).Methods("POST")
 	r.Handle("/games/{id}/masterballot", e.RequireRightFunc(e.voteBallot)).Methods("PUT")
+
+	r.Handle("/games/{id}/nominations", e.RequireRightFunc(e.getNominations)).Methods("GET")
 
 	return nil
 }
@@ -164,14 +165,8 @@ func (ge *gamesEndpoint) listPlayers(w http.ResponseWriter, r *http.Request) {
 
 func (ge *gamesEndpoint) getNominations(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	vars := mux.Vars(r)
-	id := vars["id"]
-	if id == "" {
-		http.Error(w, "Game ID is required", http.StatusBadRequest)
-		return
-	}
 
-	nominations, err := ge.gamesService.GetNominations(ctx, id)
+	nominations, err := ge.gamesService.GetNominations(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

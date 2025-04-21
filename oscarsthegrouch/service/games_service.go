@@ -16,7 +16,7 @@ type GamesService interface {
 	ListGames(ctx context.Context) ([]*model.Game, error)
 	CreateGame(ctx context.Context, name string) (*model.Game, error)
 	ListPlayers(ctx context.Context, gameId string) ([]*model.Player, error)
-	GetNominations(ctx context.Context, gameId string) (*Nominations, error)
+	GetNominations(ctx context.Context) (*Nominations, error)
 }
 
 type gamesService struct {
@@ -155,15 +155,17 @@ type Nominations struct {
 }
 
 type NominationCategory struct {
+	Id       string    `json:"id"`
+	Name     string    `json:"name"`
 	Nominees []Nominee `json:"nominees"`
 }
 
 type Nominee struct {
-	Work         string `json:"work"`
-	Contributors string `json:"contributors"`
+	Work        string `json:"work"`
+	Contributor string `json:"contributor"`
 }
 
-func (gs *gamesService) GetNominations(ctx context.Context, gameId string) (*Nominations, error) {
+func (gs *gamesService) GetNominations(ctx context.Context) (*Nominations, error) {
 	logger := log.Get(ctx)
 
 	n, err := os.ReadFile("./static/nominations/y2025.json")

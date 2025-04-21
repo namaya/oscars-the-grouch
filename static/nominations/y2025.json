@@ -1,46 +1,111 @@
 {
   "categories": [
     {
+      "id": "a8d9c096-261c-4f16-ae55-1309b8e77a07",
       "name": "ACTOR IN LEADING ROLE",
       "nominees": [
-        { "contributor": "ADRIEN BRODY", "work": "THE BRUTALIST" },
-        { "contributor": "TIMOTHÉE CHALAMET", "work": "A COMPLETE UNKNOWN" },
-        { "contributor": "COLMAN DOMINGO", "work": "SING SING" },
-        { "contributor": "RALPH FIENNES", "work": "SEBASTIAN STAN" },
-        { "contributor": "SEBASTIAN STAN", "work": "THE APPRENTICE" }
+        {
+          "work": "THE BRUTALIST",
+          "contributor": "ADRIEN BRODY"
+        },
+        {
+          "work": "A COMPLETE UNKNOWN",
+          "contributor": "TIMOTHÉE CHALAMET"
+        },
+        {
+          "work": "SING SING",
+          "contributor": "COLMAN DOMINGO"
+        },
+        {
+          "work": "SEBASTIAN STAN",
+          "contributor": "RALPH FIENNES"
+        },
+        {
+          "work": "THE APPRENTICE",
+          "contributor": "SEBASTIAN STAN"
+        }
       ]
     },
     {
+      "id": "19c53997-16ba-4fa9-b7ce-b04dab54511d",
       "name": "ACTOR IN SUPPORTING ROLE",
       "nominees": [
-        { "contributor": "YURA BORISOV", "work": "ANORA" },
-        { "contributor": "KIERAN CULKIN", "work": "A REAL PAIN" },
-        { "contributor": "EDWARD NORTON", "work": "A COMPLETE UNKNOWN" },
-        { "contributor": "GUY PEARCE", "work": "THE BRUTALIST" },
-        { "contributor": "JEREMY STRONG", "work": "THE APPRENTICE" }
+        {
+          "work": "ANORA",
+          "contributor": "YURA BORISOV"
+        },
+        {
+          "work": "A REAL PAIN",
+          "contributor": "KIERAN CULKIN"
+        },
+        {
+          "work": "A COMPLETE UNKNOWN",
+          "contributor": "EDWARD NORTON"
+        },
+        {
+          "work": "THE BRUTALIST",
+          "contributor": "GUY PEARCE"
+        },
+        {
+          "work": "THE APPRENTICE",
+          "contributor": "JEREMY STRONG"
+        }
       ]
     },
     {
+      "id": "26999876-b102-44b1-8876-ceff53f0e1a4",
       "name": "ACTRESS IN LEADING ROLE",
       "nominees": [
-        { "contributor": "CYNTHIA ERIVO", "work": "WICKED" },
-        { "contributor": "KARLA SOFIA GASCON", "work": "Emilia Pérez" },
-        { "contributor": "MIKEY MADISON", "work": "ANORA" },
-        { "contributor": "DEMI MOORE", "work": "THE SUBSTANCE" },
-        { "contributor": "FERNANDO TORRES", "work": "I'M STILL HERE" }
+        {
+          "work": "WICKED",
+          "contributor": "CYNTHIA ERIVO"
+        },
+        {
+          "work": "Emilia Pérez",
+          "contributor": "KARLA SOFIA GASCON"
+        },
+        {
+          "work": "ANORA",
+          "contributor": "MIKEY MADISON"
+        },
+        {
+          "work": "THE SUBSTANCE",
+          "contributor": "DEMI MOORE"
+        },
+        {
+          "work": "I'M STILL HERE",
+          "contributor": "FERNANDO TORRES"
+        }
       ]
     },
     {
+      "id": "52ba13d1-27c4-4076-9db4-7117da244da5",
       "name": "ACTRESS IN SUPPORTING ROLE",
       "nominees": [
-        { "contributor": "Monica Barbaro", "work": "A Complete Unknown" },
-        { "contributor": "Ariana Grande", "work": "Wicked" },
-        { "contributor": "Felicity Jones", "work": "The Brutalist" },
-        { "contributor": "Isabella Rossellini", "work": "Conclave" },
-        { "contributor": "Zoe Saldaña", "work": "Emilia Pérez" }
+        {
+          "work": "A Complete Unknown",
+          "contributor": "Monica Barbaro"
+        },
+        {
+          "work": "Wicked",
+          "contributor": "Ariana Grande"
+        },
+        {
+          "work": "The Brutalist",
+          "contributor": "Felicity Jones"
+        },
+        {
+          "work": "Conclave",
+          "contributor": "Isabella Rossellini"
+        },
+        {
+          "work": "Emilia Pérez",
+          "contributor": "Zoe Saldaña"
+        }
       ]
     },
     {
+      "id": "09b2f3de-57ee-4049-aa26-2515f74125ca",
       "name": "ANIMATED FEATURE FILM",
       "nominees": [
         {
@@ -56,7 +121,7 @@
           "contributor": "Adam Elliot and Liz Kearney"
         },
         {
-          "work": "Wallace & Gromit: Vengeance Most Fowl",
+          "work": "Wallace \u0026 Gromit: Vengeance Most Fowl",
           "contributor": "Nick Park, Merlin Crossingham and Richard Beek"
         },
         {
@@ -66,6 +131,7 @@
       ]
     },
     {
+      "id": "b6c0c90c-920c-4fc9-a02f-48b20345d715",
       "name": "ANIMATED SHORT FILM",
       "nominees": [
         {
@@ -91,39 +157,85 @@
       ]
     },
     {
+      "id": "6453e03e-2495-4e9d-a350-77d864b64020",
       "name": "CINEMATOGRAPHY",
       "nominees": [
-        { "work": "The Brutalist", "contributor": "Lol Crawley" },
-        { "work": "Dune: Part Two", "contributor": "Greig Fraser" },
-        { "work": "Emilia Pérez", "contributor": "Paul Guilhaume" },
-        { "work": "Maria", "contributor": "Ed Lachman" },
-        { "work": "Nosferatu", "contributor": "Jarin Blaschke" }
+        {
+          "work": "The Brutalist",
+          "contributor": "Lol Crawley"
+        },
+        {
+          "work": "Dune: Part Two",
+          "contributor": "Greig Fraser"
+        },
+        {
+          "work": "Emilia Pérez",
+          "contributor": "Paul Guilhaume"
+        },
+        {
+          "work": "Maria",
+          "contributor": "Ed Lachman"
+        },
+        {
+          "work": "Nosferatu",
+          "contributor": "Jarin Blaschke"
+        }
       ]
     },
     {
+      "id": "10abef4c-7ebb-4dd2-835e-d0e09d10a7ee",
       "name": "COSTUME DESIGN",
       "nominees": [
-        { "work": "A Complete Unknown", "contributor": "Arianne Phillips" },
-        { "work": "Conclave", "contributor": "Lisy Christl" },
+        {
+          "work": "A Complete Unknown",
+          "contributor": "Arianne Phillips"
+        },
+        {
+          "work": "Conclave",
+          "contributor": "Lisy Christl"
+        },
         {
           "work": "Gladiator II",
           "contributor": "Janty Yates and Dave Crossman"
         },
-        { "work": "Nosferatu", "contributor": "Linda Muir" },
-        { "work": "Wicked", "contributor": "Paul Tazewell" }
+        {
+          "work": "Nosferatu",
+          "contributor": "Linda Muir"
+        },
+        {
+          "work": "Wicked",
+          "contributor": "Paul Tazewell"
+        }
       ]
     },
     {
+      "id": "b7ef78e8-f8a3-4706-ba61-58e7a183a76b",
       "name": "DIRECTING",
       "nominees": [
-        { "work": "Anora", "contributor": "Sean Baker" },
-        { "work": "The Brutalist", "contributor": "Brady Corbet" },
-        { "work": "A Complete Unknown", "contributor": "James Mangold" },
-        { "work": "Emilia Pérez", "contributor": "Jacques Audiard" },
-        { "work": "The Substance", "contributor": "Coralie Fargeat" }
+        {
+          "work": "Anora",
+          "contributor": "Sean Baker"
+        },
+        {
+          "work": "The Brutalist",
+          "contributor": "Brady Corbet"
+        },
+        {
+          "work": "A Complete Unknown",
+          "contributor": "James Mangold"
+        },
+        {
+          "work": "Emilia Pérez",
+          "contributor": "Jacques Audiard"
+        },
+        {
+          "work": "The Substance",
+          "contributor": "Coralie Fargeat"
+        }
       ]
     },
     {
+      "id": "bd35119e-2954-4ae5-a453-b9f161b1607c",
       "name": "DOCUMENTARY FEATURE FILM",
       "nominees": [
         {
@@ -149,48 +261,85 @@
       ]
     },
     {
+      "id": "792d55fa-3012-43a8-a6e4-bd8f5e94f696",
       "name": "DOCUMENTARY SHORT FILM",
       "nominees": [
         {
           "work": "Death by Numbers",
-          "nominees": "Kim A. Snyder and Janique L. Robillard"
+          "contributor": ""
         },
         {
           "work": "I Am Ready, Warden",
-          "nominees": "Smriti Mundhra and Maya Gnyp"
+          "contributor": ""
         },
-        { "work": "Incident", "nominees": "Bill Morrison and Jamie Kalven" },
+        {
+          "work": "Incident",
+          "contributor": ""
+        },
         {
           "work": "Instruments of a Beating Heart",
-          "nominees": "Ema Ryan Yamazaki and Eric Nyari"
+          "contributor": ""
         },
         {
           "work": "The Only Girl in the Orchestra",
-          "nominees": "Molly O’Brien and Lisa Remington"
+          "contributor": ""
         }
       ]
     },
     {
+      "id": "e0fc16d1-87fa-4c68-871a-cc0b653b0715",
       "name": "FILM EDITING",
       "nominees": [
-        { "work": "Anora", "contributor": "Sean Baker" },
-        { "work": "The Brutalist", "contributor": "David Jancso" },
-        { "work": "Conclave", "contributor": ["Nick Emerson"] },
-        { "work": "Emilia Pérez", "contributor": ["Juliette Welfling"] },
-        { "work": "Wicked", "contributor": ["Myron Kerstein"] }
+        {
+          "work": "Anora",
+          "contributor": "Sean Baker"
+        },
+        {
+          "work": "The Brutalist",
+          "contributor": "David Jancso"
+        },
+        {
+          "work": "Conclave",
+          "contributor": "Nick Emerson"
+        },
+        {
+          "work": "Emilia Pérez",
+          "contributor": "Juliette Welfling"
+        },
+        {
+          "work": "Wicked",
+          "contributor": "Myron Kerstein"
+        }
       ]
     },
     {
+      "id": "14a891fa-7c43-48c8-93e1-c89b7a10216e",
       "name": "INTERNATIONAL FEATURE FILM",
       "nominees": [
-        { "work": "I'm Still Here", "contributor": "Brazil" },
-        { "work": "The Girl with the Needle", "contributor": "Denmark" },
-        { "work": "Emilia Pérez", "contributor": "France" },
-        { "work": "The Seed of the Sacred Fig", "contributor": "Germany" },
-        { "work": "Flow", "contributor": "Latvia" }
+        {
+          "work": "I'm Still Here",
+          "contributor": "Brazil"
+        },
+        {
+          "work": "The Girl with the Needle",
+          "contributor": "Denmark"
+        },
+        {
+          "work": "Emilia Pérez",
+          "contributor": "France"
+        },
+        {
+          "work": "The Seed of the Sacred Fig",
+          "contributor": "Germany"
+        },
+        {
+          "work": "Flow",
+          "contributor": "Latvia"
+        }
       ]
     },
     {
+      "id": "238fe0cb-2d49-4528-9f24-a1b20b65b0a1",
       "name": "MAKEUP AND HAIRSTYLING",
       "nominees": [
         {
@@ -216,46 +365,59 @@
       ]
     },
     {
+      "id": "934cfe9f-ffb3-4960-81d1-ec19d48b6848",
       "name": "MUSIC (ORIGINAL SCORE)",
       "nominees": [
-        { "work": "The Brutalist", "contributor": "Daniel Blumberg" },
-        { "work": "Conclave", "contributor": "Volker Bertelmann" },
-        { "work": "Emilia Pérez", "contributor": "Clément Ducol and Camille" },
-        { "work": "Wicked", "contributor": "John Powell and Stephen Schwartz" },
-        { "work": "The Wild Robot", "contributor": "Kris Bowers" }
+        {
+          "work": "The Brutalist",
+          "contributor": "Daniel Blumberg"
+        },
+        {
+          "work": "Conclave",
+          "contributor": "Volker Bertelmann"
+        },
+        {
+          "work": "Emilia Pérez",
+          "contributor": "Clément Ducol and Camille"
+        },
+        {
+          "work": "Wicked",
+          "contributor": "John Powell and Stephen Schwartz"
+        },
+        {
+          "work": "The Wild Robot",
+          "contributor": "Kris Bowers"
+        }
       ]
     },
     {
+      "id": "fe3e18c3-d5fa-4858-9a15-091339b719ca",
       "name": "MUSIC (ORIGINAL SONG)",
       "nominees": [
         {
-          "song": "El Mal",
           "work": "Emilia Pérez",
           "contributor": "Music by Clément Ducol and Camille; Lyric by Clément Ducol, Camille and Jacques Audiard"
         },
         {
-          "song": "The Journey",
           "work": "The Six Triple Eight",
           "contributor": "Music and Lyric by Diane Warren"
         },
         {
-          "song": "Like A Bird",
           "work": "Sing Sing",
           "contributor": "Music and Lyric by Abraham Alexander and Adrian Quesada"
         },
         {
-          "song": "Mi Camino",
           "work": "Emilia Pérez",
           "contributor": "Music and Lyric by Camille and Clément Ducol"
         },
         {
-          "song": "Never Too Late",
           "work": "Elton John: Never Too Late",
           "contributor": "Music and Lyric by Elton John, Brandi Carlile, Andrew Watt and Bernie Taupin"
         }
       ]
     },
     {
+      "id": "2a2140a9-02a9-4e2e-b954-8f6d11e8b7d9",
       "name": "BEST PICTURE",
       "nominees": [
         {
@@ -292,12 +454,16 @@
         },
         {
           "work": "The Substance",
-          "contributor": "Coralie Fargeat and Tim Bevan & Eric Fellner, Producers"
+          "contributor": "Coralie Fargeat and Tim Bevan \u0026 Eric Fellner, Producers"
         },
-        { "work": "Wicked", "contributor": "Marc Platt, Producer" }
+        {
+          "work": "Wicked",
+          "contributor": "Marc Platt, Producer"
+        }
       ]
     },
     {
+      "id": "e3472d62-6c2a-4943-9a22-f7b239a661d5",
       "name": "PRODUCTION DESIGN",
       "nominees": [
         {
@@ -323,31 +489,33 @@
       ]
     },
     {
+      "id": "14b480d2-e717-483f-a163-a3774c43cb12",
       "name": "LIVE ACTION SHORT FILM",
       "nominees": [
         {
           "work": "A Lien",
-          "nominees": "Sam Cutler-Kreutz and David Cutler-Kreutz"
+          "contributor": ""
         },
         {
           "work": "Anuja",
-          "nominees": "Adam J. Graves and Suchitra Mattai"
+          "contributor": ""
         },
         {
           "work": "I'm Not a Robot",
-          "nominees": "Victoria Warmerdam and Trent"
+          "contributor": ""
         },
         {
           "work": "The Last Ranger",
-          "nominees": "Cindy Lee and Darwin Shaw"
+          "contributor": ""
         },
         {
           "work": "The Man Who Could Not Remain Silent",
-          "nominees": "Nebojša Slijepčević and Danijel Pek"
+          "contributor": ""
         }
       ]
     },
     {
+      "id": "39fb6e6d-fa5c-4519-af6d-74b122b4e3dc",
       "name": "SOUND",
       "nominees": [
         {
@@ -373,6 +541,7 @@
       ]
     },
     {
+      "id": "935bde74-412e-4d69-b5da-7fb1528f0ae2",
       "name": "VISUAL EFFECTS",
       "nominees": [
         {
@@ -398,20 +567,24 @@
       ]
     },
     {
+      "id": "5020989f-2ee1-4c11-8be3-2fe3160ac1d7",
       "name": "WRITING (ADAPTED SCREENPLAY)",
       "nominees": [
         {
           "work": "A Complete Unknown",
           "contributor": "Screenplay by James Mangold and Jay Cocks"
         },
-        { "work": "Conclave", "contributor": "Screenplay by Peter Straughan" },
+        {
+          "work": "Conclave",
+          "contributor": "Screenplay by Peter Straughan"
+        },
         {
           "work": "Emilia Pérez",
           "contributor": "Screenplay by Jacques Audiard; In collaboration with Thomas Bidegain, Léa Mysius and Nicolas Livecchi"
         },
         {
           "work": "Nickel Boys",
-          "contributor": "Screenplay by RaMell Ross & Joslyn Barnes"
+          "contributor": "Screenplay by RaMell Ross \u0026 Joslyn Barnes"
         },
         {
           "work": "Sing Sing",
@@ -420,19 +593,29 @@
       ]
     },
     {
+      "id": "478f9dd8-ce4a-4aae-bb1f-fca4ae469c8b",
       "name": "WRITING (ORIGINAL SCREENPLAY)",
       "nominees": [
-        { "work": "Anora", "contributor": "Written by Sean Baker" },
+        {
+          "work": "Anora",
+          "contributor": "Written by Sean Baker"
+        },
         {
           "work": "The Brutalist",
           "contributor": "Written by Brady Corbet, Mona Fastvold"
         },
-        { "work": "A Real Pain", "contributor": "Written by Jesse Eisenberg" },
+        {
+          "work": "A Real Pain",
+          "contributor": "Written by Jesse Eisenberg"
+        },
         {
           "work": "September 5",
           "contributor": "Written by Moritz Binder, Tim Fehlbaum; Co-Written by Alex David"
         },
-        { "work": "The Substance", "contributor": "Written by Coralie Fargeat" }
+        {
+          "work": "The Substance",
+          "contributor": "Written by Coralie Fargeat"
+        }
       ]
     }
   ]
