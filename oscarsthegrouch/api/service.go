@@ -36,7 +36,7 @@ func ServerHandler() {
 	// Build API endpoints
 	ae := NewAuthorizedEndpoint(usersService)
 
-	gamesEndpoint := NewGamesEndpoint(ae, gamesService)
+	gamesEndpoint := NewGamesEndpoint(ae, gamesService, usersService)
 	ballotsEndpoint := NewBallotsEndpoint(ballotsService)
 	usersEndpoint := NewUsersEndpoint(usersService)
 

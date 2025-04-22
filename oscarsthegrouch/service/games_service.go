@@ -17,6 +17,7 @@ type GamesService interface {
 	CreateGame(ctx context.Context, name string) (*model.Game, error)
 	ListPlayers(ctx context.Context, gameId string) ([]*model.Player, error)
 	GetNominations(ctx context.Context) (*Nominations, error)
+	AddPlayer(ctx context.Context, gameId string, user *model.User) (*model.Player, error)
 }
 
 type gamesService struct {
@@ -182,4 +183,36 @@ func (gs *gamesService) GetNominations(ctx context.Context) (*Nominations, error
 	logger.Debugf("GetNominations: %v", nominations)
 
 	return &nominations, nil
+}
+
+func (gs *gamesService) AddPlayer(ctx context.Context, gameId string, user *model.User) (*model.Player, error) {
+	logger := log.Get(ctx)
+
+	playerId := uuid.New().String()
+
+	result, err := gs.dbClient.ExecContext(ctx, `
+		INSERT INTO players (id, game_id, user_id, score, state) VALUES (?, ?, ?, ?, ?)
+	`, playerId, gameId, user.Id, 0, "Waiting")
+	if err != nil {
+		return nil, fmt.Errorf("AddPlayer: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return nil, fmt.Errorf("AddPlayer: %w", err)
+	}
+	if rowsAffected == 0 {
+		return nil, fmt.Errorf("AddPlayer: players: no rows affected")
+	}
+
+	logger.Debugf("created player '%s'", playerId)
+
+	player := model.Player{
+		Id:    playerId,
+		User:  user,
+		Score: 0,
+		State: "Waiting",
+	}
+
+	return &player, nil
 }

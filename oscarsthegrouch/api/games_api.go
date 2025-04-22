@@ -12,12 +12,14 @@ import (
 type gamesEndpoint struct {
 	AuthorizedEndpoint
 	gamesService service.GamesService
+	usersService service.UsersService
 }
 
-func NewGamesEndpoint(ae AuthorizedEndpoint, gs service.GamesService) Endpoint {
+func NewGamesEndpoint(ae AuthorizedEndpoint, gs service.GamesService, us service.UsersService) Endpoint {
 	return &gamesEndpoint{
 		AuthorizedEndpoint: ae,
 		gamesService:       gs,
+		usersService:       us,
 	}
 }
 
@@ -26,6 +28,7 @@ func (e *gamesEndpoint) BuildRoutes(r *mux.Router) error {
 	r.Handle("/games", e.RequireRightFunc(e.createGame)).Methods("POST")
 	r.Handle("/games", e.RequireRightFunc(e.listGames)).Methods("GET")
 	r.Handle("/games/{id}/players", e.RequireRightFunc(e.listPlayers)).Methods("GET")
+	r.Handle("/games/{id}/players", e.RequireRightFunc(e.addPlayer)).Methods("POST")
 	r.Handle("/games/{id}/scores", e.RequireRightFunc(e.scores)).Methods("GET")
 	r.Handle("/games/{id}/ballots", e.RequireRightFunc(e.createBallot)).Methods("POST")
 	r.Handle("/games/{id}/masterballot", e.RequireRightFunc(e.voteBallot)).Methods("PUT")
@@ -161,6 +164,65 @@ func (ge *gamesEndpoint) listPlayers(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+type AddPlayerRequest struct {
+	Name      string `json:"name"`
+	AvatarUri string `json:"avatarUri"`
+}
+
+func (ge *gamesEndpoint) addPlayer(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	vars := mux.Vars(r)
+	gameId := vars["id"]
+	if gameId == "" {
+		http.Error(w, "Game ID is required", http.StatusBadRequest)
+		return
+	}
+
+	var addPlayerRequest AddPlayerRequest
+	if err := json.NewDecoder(r.Body).Decode(&addPlayerRequest); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if addPlayerRequest.Name == "" {
+		http.Error(w, "Name is required", http.StatusBadRequest)
+		return
+	}
+
+	if addPlayerRequest.AvatarUri == "" {
+		http.Error(w, "Avatar URI is required", http.StatusBadRequest)
+		return
+	}
+
+	// Create a new user
+	user, err := ge.usersService.CreateUser(ctx, addPlayerRequest.Name, addPlayerRequest.AvatarUri)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	player, err := ge.gamesService.AddPlayer(ctx, gameId, user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	playerResp := PlayerResponse{
+		Id:        player.Id,
+		Username:  player.User.Name,
+		AvatarUri: player.User.AvatarUri,
+		Score:     player.Score,
+		State:     player.State,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(playerResp); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 }
 
 func (ge *gamesEndpoint) getNominations(w http.ResponseWriter, r *http.Request) {
