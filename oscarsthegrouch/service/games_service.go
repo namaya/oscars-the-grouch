@@ -19,6 +19,7 @@ type GamesService interface {
 	GetNominations(ctx context.Context) (*Nominations, error)
 	AddPlayer(ctx context.Context, gameId string, user *model.User) (*model.Player, error)
 	CreateBallot(ctx context.Context, gameId string, playerId string, votes []*model.Vote) (*model.Ballot, error)
+	UpdatePlayerState(ctx context.Context, gameId string, playerId string, state string) (*model.Ballot, error)
 }
 
 type gamesService struct {
@@ -274,4 +275,28 @@ func (gs *gamesService) CreateBallot(ctx context.Context, gameId string, playerI
 	logger.Debugf("added votes")
 
 	return &ballot, nil
+}
+
+func (gs *gamesService) UpdatePlayerState(ctx context.Context, gameId string, playerId string, state string) (*model.Ballot, error) {
+	logger := log.Get(ctx)
+
+	result, err := gs.dbClient.ExecContext(ctx, `
+		UPDATE players SET state = ? WHERE id = ? AND game_id = ?
+	`, state, playerId, gameId)
+	if err != nil {
+		return nil, fmt.Errorf("UpdatePlayerState: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return nil, fmt.Errorf("UpdatePlayerState: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return nil, fmt.Errorf("UpdatePlayerState: players: no rows affected")
+	}
+
+	logger.Debugf("updated player '%s' to state '%s'", playerId, state)
+
+	return nil, nil
 }

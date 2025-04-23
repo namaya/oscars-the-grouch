@@ -255,8 +255,6 @@ type CreateBallotRequest struct {
 }
 
 func (ge *gamesEndpoint) createBallot(w http.ResponseWriter, r *http.Request) {
-	// TODO: update player state to "Ready"
-
 	ctx := r.Context()
 
 	vars := mux.Vars(r)
@@ -283,6 +281,8 @@ func (ge *gamesEndpoint) createBallot(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	ge.gamesService.UpdatePlayerState(ctx, gid, ballot.PlayerId, "Ready")
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(ballot); err != nil {
