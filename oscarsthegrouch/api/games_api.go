@@ -122,6 +122,7 @@ type ListPlayersResponse struct {
 
 type PlayerResponse struct {
 	Id        string `json:"id"`
+	UserId    string `json:"userId"`
 	Username  string `json:"username"`
 	AvatarUri string `json:"avatarUri"`
 	Score     int    `json:"score"`
@@ -148,6 +149,7 @@ func (ge *gamesEndpoint) listPlayers(w http.ResponseWriter, r *http.Request) {
 	for i, player := range players {
 		playersResp[i] = PlayerResponse{
 			Id:        player.Id,
+			UserId:    player.User.Id,
 			Username:  player.User.Name,
 			AvatarUri: player.User.AvatarUri,
 			Score:     player.Score,
@@ -209,8 +211,9 @@ func (ge *gamesEndpoint) addPlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	playerResp := PlayerResponse{
+	pr := PlayerResponse{
 		Id:        player.Id,
+		UserId:    player.User.Id,
 		Username:  player.User.Name,
 		AvatarUri: player.User.AvatarUri,
 		Score:     player.Score,
@@ -218,7 +221,7 @@ func (ge *gamesEndpoint) addPlayer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(playerResp); err != nil {
+	if err := json.NewEncoder(w).Encode(pr); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
