@@ -18,6 +18,7 @@ type GamesService interface {
 	ListPlayers(ctx context.Context, gameId string) ([]*model.Player, error)
 	GetNominations(ctx context.Context) (*Nominations, error)
 	AddPlayer(ctx context.Context, gameId string, user *model.User) (*model.Player, error)
+	CreateBallot(ctx context.Context, gameId string, playerId string, votes []*model.Vote) (*model.Ballot, error)
 }
 
 type gamesService struct {
@@ -215,4 +216,62 @@ func (gs *gamesService) AddPlayer(ctx context.Context, gameId string, user *mode
 	}
 
 	return &player, nil
+}
+
+func (gs *gamesService) CreateBallot(ctx context.Context, gameId string, playerId string, votes []*model.Vote) (*model.Ballot, error) {
+	logger := log.Get(ctx)
+	ballotId := uuid.New().String()
+	result, err := gs.dbClient.ExecContext(ctx, `
+		INSERT INTO ballots (id, game_id, player_id, year) VALUES (?, ?, ?, ?)
+	`, ballotId, gameId, playerId, "2025")
+
+	if err != nil {
+		return nil, fmt.Errorf("CreateBallot: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return nil, fmt.Errorf("CreateBallot: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return nil, fmt.Errorf("CreateBallot: ballots: no rows affected")
+	}
+
+	ballot := model.Ballot{
+		Id:       ballotId,
+		PlayerId: playerId,
+		Year:     2025,
+		Votes:    []*model.Vote{},
+	}
+
+	logger.Debugf("created ballot '%s'", ballot)
+
+	// Insert votes
+	for _, vote := range votes {
+		voteId := uuid.New().String()
+		logger.Debugf("creating vote '%s'", voteId)
+		result, err = gs.dbClient.ExecContext(ctx, `
+			INSERT INTO votes (id, ballot_id, category_id, vote) VALUES (?, ?, ?, ?)
+		`, voteId, ballotId, vote.CategoryId, vote.Vote)
+		if err != nil {
+			return nil, fmt.Errorf("CreateBallot: %w", err)
+		}
+		rowsAffected, err = result.RowsAffected()
+		if err != nil {
+			return nil, fmt.Errorf("CreateBallot: %w", err)
+		}
+		if rowsAffected == 0 {
+			return nil, fmt.Errorf("CreateBallot: votes: no rows affected")
+		}
+
+		ballot.Votes = append(ballot.Votes, &model.Vote{
+			CategoryId: vote.CategoryId,
+			Vote:       vote.Vote,
+		})
+	}
+
+	logger.Debugf("added votes")
+
+	return &ballot, nil
 }

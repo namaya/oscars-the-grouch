@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	// "namaya/oscarsthegrouch/model"
+	"namaya/oscarsthegrouch/model"
 	"namaya/oscarsthegrouch/service"
 	"net/http"
 
@@ -29,8 +30,8 @@ func (e *gamesEndpoint) BuildRoutes(r *mux.Router) error {
 	r.Handle("/games", e.RequireRightFunc(e.listGames)).Methods("GET")
 	r.Handle("/games/{id}/players", e.RequireRightFunc(e.listPlayers)).Methods("GET")
 	r.Handle("/games/{id}/players", e.RequireRightFunc(e.addPlayer)).Methods("POST")
+	r.Handle("/games/{gid}/players/{pid}/ballots", e.RequireRightFunc(e.createBallot)).Methods("POST")
 	r.Handle("/games/{id}/scores", e.RequireRightFunc(e.scores)).Methods("GET")
-	r.Handle("/games/{id}/ballots", e.RequireRightFunc(e.createBallot)).Methods("POST")
 	r.Handle("/games/{id}/masterballot", e.RequireRightFunc(e.voteBallot)).Methods("PUT")
 
 	r.Handle("/games/{id}/nominations", e.RequireRightFunc(e.getNominations)).Methods("GET")
@@ -249,9 +250,45 @@ func (ge *gamesEndpoint) scores(w http.ResponseWriter, r *http.Request) {
 	// Requires that the game is active
 }
 
+type CreateBallotRequest struct {
+	Votes []*model.Vote `json:"votes"`
+}
+
 func (ge *gamesEndpoint) createBallot(w http.ResponseWriter, r *http.Request) {
 	// TODO: update player state to "Ready"
 
+	ctx := r.Context()
+
+	vars := mux.Vars(r)
+	gid := vars["gid"]
+	if gid == "" {
+		http.Error(w, "Game ID is required", http.StatusBadRequest)
+		return
+	}
+
+	pid := vars["pid"]
+	if pid == "" {
+		http.Error(w, "Player ID is required", http.StatusBadRequest)
+		return
+	}
+
+	var createBallotRequest model.Ballot
+	if err := json.NewDecoder(r.Body).Decode(&createBallotRequest); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	ballot, err := ge.gamesService.CreateBallot(ctx, gid, pid, createBallotRequest.Votes)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(ballot); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (ge *gamesEndpoint) voteBallot(w http.ResponseWriter, r *http.Request) {

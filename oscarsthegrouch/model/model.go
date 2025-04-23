@@ -21,14 +21,13 @@ type Game struct {
 }
 
 type Ballot struct {
-	Id      string
-	Year    int
-	OwnerId string
-	Votes   []Vote
+	Id       string
+	PlayerId string
+	Year     int
+	Votes    []*Vote
 }
 
 type Vote struct {
-	BallotId   string
 	CategoryId string
 	Vote       int
 }
