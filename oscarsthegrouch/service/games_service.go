@@ -20,6 +20,8 @@ type GamesService interface {
 	AddPlayer(ctx context.Context, gameId string, user *model.User) (*model.Player, error)
 	CreateBallot(ctx context.Context, gameId string, playerId string, votes []*model.Vote) (*model.Ballot, error)
 	UpdatePlayerState(ctx context.Context, gameId string, playerId string, state string) (*model.Ballot, error)
+	GetMasterBallot(ctx context.Context, gameId string) (*model.Ballot, error)
+	UpdateMasterBallot(ctx context.Context, gameId string, votes *model.Vote) (*model.Ballot, error)
 }
 
 type gamesService struct {
@@ -299,4 +301,73 @@ func (gs *gamesService) UpdatePlayerState(ctx context.Context, gameId string, pl
 	logger.Debugf("updated player '%s' to state '%s'", playerId, state)
 
 	return nil, nil
+}
+
+func (gs *gamesService) UpdateMasterBallot(ctx context.Context, gameId string, vote *model.Vote) (*model.Ballot, error) {
+	logger := log.Get(ctx)
+
+	voteId := uuid.New().String()
+
+	result, err := gs.dbClient.ExecContext(ctx, `
+		INSERT INTO votes (id, ballot_id, category_id, vote)
+		SELECT ?, b.id, ?, vote
+		FROM ballots b
+		WHERE b.game_id = ? AND b.player_id IS NULL;
+	`, voteId, vote.CategoryId, vote.Vote, gameId)
+	if err != nil {
+		return nil, fmt.Errorf("UpdateMasterBallot: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return nil, fmt.Errorf("UpdateMasterBallot: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return nil, fmt.Errorf("UpdateMasterBallot: ballots: no rows affected")
+	}
+
+	logger.Debugf("updated master ballot '%s' to vote '%s' for category '%s'", gameId, voteId, vote.CategoryId)
+
+	return nil, nil
+}
+
+func (gs *gamesService) GetMasterBallot(ctx context.Context, gameId string) (*model.Ballot, error) {
+	logger := log.Get(ctx)
+
+	rows, err := gs.dbClient.QueryContext(ctx, `
+		SELECT b.id, b.year, v.category_id, v.vote
+		FROM ballots b
+			LEFT JOIN votes v ON b.id = v.ballot_id
+		WHERE b.game_id = ? AND b.player_id IS NULL;
+	`, gameId)
+	if err != nil {
+		return nil, fmt.Errorf("GetMasterBallot: %w", err)
+	}
+	defer rows.Close()
+
+	var ballot model.Ballot
+	ballot.Id = uuid.New().String()
+	ballot.Year = 2025
+	ballot.Votes = []*model.Vote{}
+
+	for rows.Next() {
+		var vote model.Vote
+		var cid sql.NullString
+		var v sql.NullInt64
+
+		if err := rows.Scan(&ballot.Id, &ballot.Year, &cid, &v); err != nil {
+			return nil, fmt.Errorf("GetMasterBallot: %w", err)
+		}
+
+		if cid.Valid {
+			vote.CategoryId = cid.String
+			vote.Vote = int(v.Int64)
+			ballot.Votes = append(ballot.Votes, &vote)
+		}
+	}
+
+	logger.Debugf("got master ballot '%s'", ballot.Id)
+
+	return &ballot, nil
 }

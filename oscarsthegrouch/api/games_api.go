@@ -32,7 +32,8 @@ func (e *gamesEndpoint) BuildRoutes(r *mux.Router) error {
 	r.Handle("/games/{id}/players", e.RequireRightFunc(e.addPlayer)).Methods("POST")
 	r.Handle("/games/{gid}/players/{pid}/ballots", e.RequireRightFunc(e.createBallot)).Methods("POST")
 	r.Handle("/games/{id}/scores", e.RequireRightFunc(e.scores)).Methods("GET")
-	r.Handle("/games/{id}/masterballot", e.RequireRightFunc(e.voteBallot)).Methods("PUT")
+	r.Handle("/games/{id}/masterballot", e.RequireRightFunc(e.getMasterBallot)).Methods("GET")
+	r.Handle("/games/{id}/masterballot", e.RequireRightFunc(e.voteBallot)).Methods("PATCH")
 
 	r.Handle("/games/{id}/nominations", e.RequireRightFunc(e.getNominations)).Methods("GET")
 
@@ -291,6 +292,74 @@ func (ge *gamesEndpoint) createBallot(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type VoteBallotRequest struct {
+	CategoryId string `json:"categoryId"`
+	Vote       int    `json:"vote"`
+}
+
 func (ge *gamesEndpoint) voteBallot(w http.ResponseWriter, r *http.Request) {
 	// Requires that the game is active
+	ctx := r.Context()
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		http.Error(w, "Game ID is required", http.StatusBadRequest)
+		return
+	}
+
+	var voteBallotRequest VoteBallotRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&voteBallotRequest); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	ge.gamesService.UpdateMasterBallot(ctx, id, &model.Vote{
+		CategoryId: voteBallotRequest.CategoryId,
+		Vote:       voteBallotRequest.Vote,
+	})
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(voteBallotRequest); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+type GetMasterBallotResponse struct {
+	Votes []*VoteBallotRequest `json:"votes"`
+}
+
+func (ge *gamesEndpoint) getMasterBallot(w http.ResponseWriter, r *http.Request) {
+	// Requires that the game is active
+	ctx := r.Context()
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		http.Error(w, "Game ID is required", http.StatusBadRequest)
+		return
+	}
+
+	masterBallot, err := ge.gamesService.GetMasterBallot(ctx, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resBody := GetMasterBallotResponse{
+		Votes: make([]*VoteBallotRequest, 0),
+	}
+
+	for _, vote := range masterBallot.Votes {
+		resBody.Votes = append(resBody.Votes, &VoteBallotRequest{
+			CategoryId: vote.CategoryId,
+			Vote:       vote.Vote,
+		})
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(resBody); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
