@@ -22,6 +22,7 @@ type GamesService interface {
 	UpdatePlayerState(ctx context.Context, gameId string, playerId string, state string) (*model.Ballot, error)
 	GetMasterBallot(ctx context.Context, gameId string) (*model.Ballot, error)
 	UpdateMasterBallot(ctx context.Context, gameId string, votes *model.Vote) (*model.Ballot, error)
+	UpdatePlayerScores(ctx context.Context, gameId string, vote *model.Vote) (*model.Ballot, error)
 }
 
 type gamesService struct {
@@ -310,7 +311,7 @@ func (gs *gamesService) UpdateMasterBallot(ctx context.Context, gameId string, v
 
 	result, err := gs.dbClient.ExecContext(ctx, `
 		INSERT INTO votes (id, ballot_id, category_id, vote)
-		SELECT ?, b.id, ?, vote
+		SELECT ?, b.id, ?, ?
 		FROM ballots b
 		WHERE b.game_id = ? AND b.player_id IS NULL;
 	`, voteId, vote.CategoryId, vote.Vote, gameId)
@@ -370,4 +371,36 @@ func (gs *gamesService) GetMasterBallot(ctx context.Context, gameId string) (*mo
 	logger.Debugf("got master ballot '%s'", ballot.Id)
 
 	return &ballot, nil
+}
+
+func (gs *gamesService) UpdatePlayerScores(ctx context.Context, gameId string, vote *model.Vote) (*model.Ballot, error) {
+	logger := log.Get(ctx)
+
+	result, err := gs.dbClient.ExecContext(ctx, `
+		UPDATE players
+		SET score = score + 1
+		WHERE players.game_id = ? AND players.state = 'Ready' AND players.id IN (
+			SELECT b.player_id
+			FROM votes v
+				RIGHT JOIN ballots b ON v.ballot_id = b.id
+			WHERE v.category_id = ? AND v.vote = ?
+		);
+	`, gameId, vote.CategoryId, vote.Vote)
+	if err != nil {
+		return nil, fmt.Errorf("UpdatePlayerScores: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return nil, fmt.Errorf("UpdatePlayerScores: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		logger.Debugf("No correct votes")
+		return nil, nil
+	}
+
+	logger.Debugf("updated player scores for game '%s'", gameId)
+
+	return nil, nil
 }

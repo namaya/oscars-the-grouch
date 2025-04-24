@@ -79,8 +79,6 @@ func (us *usersService) ListAvatars(ctx context.Context) ([]string, error) {
 }
 
 func (us *usersService) GetUser(ctx context.Context, userId string) (*model.User, error) {
-	logger := log.Get(ctx)
-
 	row := us.dbClient.QueryRowContext(ctx, "SELECT id, name, avatar_uri FROM users WHERE id = ?", userId)
 
 	user := &model.User{}
@@ -92,8 +90,6 @@ func (us *usersService) GetUser(ctx context.Context, userId string) (*model.User
 		}
 		return nil, fmt.Errorf("GetUser: %w", err)
 	}
-
-	logger.Debugf("GetUser: %v", user)
 
 	return user, nil
 }
