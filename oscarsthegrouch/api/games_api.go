@@ -28,6 +28,7 @@ func NewGamesEndpoint(ae AuthorizedEndpoint, gs service.GamesService, us service
 func (e *gamesEndpoint) BuildRoutes(r *mux.Router) error {
 	r.Handle("/games", e.RequireRightFunc(e.createGame)).Methods("POST")
 	r.Handle("/games", e.RequireRightFunc(e.listGames)).Methods("GET")
+	r.Handle("/games/{id}", e.RequireRightFunc(e.patchGame)).Methods("PATCH")
 	r.Handle("/games/{id}/players", e.RequireRightFunc(e.listPlayers)).Methods("GET")
 	r.Handle("/games/{id}/players", e.RequireRightFunc(e.addPlayer)).Methods("POST")
 	r.Handle("/games/{gid}/players/{pid}/ballots", e.RequireRightFunc(e.createBallot)).Methods("POST")
@@ -314,10 +315,27 @@ func (ge *gamesEndpoint) voteBallot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ge.gamesService.UpdateMasterBallot(ctx, id, &model.Vote{
+	if voteBallotRequest.CategoryId == "" {
+		http.Error(w, "Category ID is required", http.StatusBadRequest)
+		return
+	}
+
+	vote := model.Vote{
 		CategoryId: voteBallotRequest.CategoryId,
 		Vote:       voteBallotRequest.Vote,
-	})
+	}
+
+	_, err := ge.gamesService.UpdateMasterBallot(ctx, id, &vote)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_, err = ge.gamesService.UpdatePlayerScores(ctx, id, &vote)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(voteBallotRequest); err != nil {
@@ -359,6 +377,39 @@ func (ge *gamesEndpoint) getMasterBallot(w http.ResponseWriter, r *http.Request)
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(resBody); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+type PatchGameRequest struct {
+	State string `json:"state"`
+}
+
+func (ge *gamesEndpoint) patchGame(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		http.Error(w, "Game ID is required", http.StatusBadRequest)
+		return
+	}
+
+	var reqBody PatchGameRequest
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	game, err := ge.gamesService.UpdateGameState(ctx, id, reqBody.State)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(game); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

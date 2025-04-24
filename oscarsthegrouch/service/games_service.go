@@ -23,6 +23,7 @@ type GamesService interface {
 	GetMasterBallot(ctx context.Context, gameId string) (*model.Ballot, error)
 	UpdateMasterBallot(ctx context.Context, gameId string, votes *model.Vote) (*model.Ballot, error)
 	UpdatePlayerScores(ctx context.Context, gameId string, vote *model.Vote) (*model.Ballot, error)
+	UpdateGameState(ctx context.Context, gameId string, state string) (*model.Game, error)
 }
 
 type gamesService struct {
@@ -403,4 +404,33 @@ func (gs *gamesService) UpdatePlayerScores(ctx context.Context, gameId string, v
 	logger.Debugf("updated player scores for game '%s'", gameId)
 
 	return nil, nil
+}
+
+func (gs *gamesService) UpdateGameState(ctx context.Context, gameId string, state string) (*model.Game, error) {
+	logger := log.Get(ctx)
+
+	result, err := gs.dbClient.ExecContext(ctx, `
+		UPDATE games SET state = ? WHERE id = ?
+	`, state, gameId)
+	if err != nil {
+		return nil, fmt.Errorf("UpdateGameState: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return nil, fmt.Errorf("UpdateGameState: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return nil, fmt.Errorf("UpdateGameState: games: no rows affected")
+	}
+
+	logger.Debugf("updated game '%s' to state '%s'", gameId, state)
+
+	game := &model.Game{
+		Id:    gameId,
+		State: state,
+	}
+
+	return game, nil
 }
